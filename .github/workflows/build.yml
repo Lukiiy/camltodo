@@ -1,0 +1,58 @@
+name: Compile
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build for ${{ matrix.name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: windows-x86_64
+            os: windows-2025-vs2026
+            suffix: -x86_64.exe
+
+          - name: macos-intel
+            os: macos-13
+            suffix: -macOS-intel
+
+          - name: macos-arm
+            os: macos-latest
+            suffix: -macOS-arm
+
+          - name: linux-x86_64
+            os: ubuntu-latest
+            suffix: -linux
+
+          - name: linux-arm
+            os: ubuntu-24.04-arm
+            suffix: -linux-arm
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup OCaml
+        uses: ocaml/setup-ocaml@v3.6.1
+        with:
+          ocaml-compiler: 5.4.1
+
+      - name: Install dependencies
+        shell: bash
+        run: opam install . --deps-only --yes || true
+
+      - name: Build
+        shell: bash
+        run: |
+          mkdir -p dist
+          opam exec -- ocamlopt -o dist/todo${{ matrix.suffix }} todo.ml
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: todo${{ matrix.suffix }}
+          path: dist/todo${{ matrix.suffix }}
