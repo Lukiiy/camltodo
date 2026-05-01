@@ -6,13 +6,14 @@ type task = {
 let tasks = ref []
 
 let () =
+  print_endline "";
+
   let rec loop () = (* funny loop *)
     (match !tasks with
       | [] -> print_endline "-"
       | _ -> List.iter (fun task -> Printf.printf "%d. %s\n" task.id task.text) !tasks
     );
 
-    print_endline " ";
     print_endline "Subcommands: add [task], mark [id], quit";
     print_string "> ";
 
@@ -24,14 +25,12 @@ let () =
 
     let args = String.split_on_char ' ' line in
 
-    (match args with
+    (match args with (* Check subcommand *)
       | "add" :: rest ->
         let text = String.concat " " rest |> String.trim in
 
         if text <> "" then
-          let nextId =
-            List.fold_left (fun acc task -> max acc task.id) 0 !tasks + 1
-          in
+          let nextId = List.fold_left (fun acc task -> max acc task.id) 0 !tasks + 1 in (* get its id *)
 
           tasks := !tasks @ [{
             id = nextId;
@@ -44,7 +43,7 @@ let () =
         (try
           let id = int_of_string taskId in
 
-          tasks := List.filter (fun t -> t.id <> id) !tasks
+          tasks := List.filter (fun task -> task.id <> id) !tasks (* remove task by filtering it out *)
 
           with _ -> print_endline "Invalid id"
         )
