@@ -15,7 +15,7 @@ jobs:
             suffix: -x86_64.exe
 
           - name: macos-intel
-            os: macos-13
+            os: macos-15-intel
             suffix: -macOS-intel
 
           - name: macos-arm
@@ -52,7 +52,7 @@ jobs:
           opam exec -- ocamlopt -o dist/todo${{ matrix.suffix }} todo.ml
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: todo${{ matrix.suffix }}
           path: dist/todo${{ matrix.suffix }}
